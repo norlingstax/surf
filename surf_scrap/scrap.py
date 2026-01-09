@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import os
+from datetime import datetime
 
 
 def get_forecast(url, output_file):
@@ -15,6 +16,15 @@ def get_forecast(url, output_file):
 
     user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edg/140.0.0."
     headers = {'User-Agent': user_agent}
+
+    month_map = {
+        'Janvier': '01', 'Février': '02', 'Mars': '03', 'Avril': '04',
+        'Mai': '05', 'Juin': '06', 'Juillet': '07', 'Août': '08',
+        'Septembre': '09', 'Octobre': '10', 'Novembre': '11', 'Décembre': '12'
+    }
+
+    # Get current year (because the website doesn't provide it)
+    current_year = datetime.now().year
 
     try:
         page = requests.get(url, headers=headers)
@@ -64,7 +74,7 @@ def get_forecast(url, output_file):
                             wind_direction = img['alt']
 
                     data_list.append({
-                        'date': date_text,
+                        'date_raw': date_text,
                         'hour': time_text,
                         'wave_height': wave_text,
                         'wind_speed': wind_speed,
@@ -73,10 +83,39 @@ def get_forecast(url, output_file):
 
             df = pd.DataFrame(data_list)
 
+            def parse_french_date(row):
+                # Example row['date_raw']: "Vendredi 9 Janvier"
+                parts = row['date_raw'].split()
+                # parts is now ['Vendredi', '9', 'Janvier']
+
+                if len(parts) >= 3:
+                    day = parts[1]
+                    month_str = parts[2]
+                    month_num = month_map.get(month_str, '01')
+
+                    # Construct string: "2025-01-09 06:00"
+                    # Note: We zfill(2) the day to turn "9" into "09"
+                    return f"{current_year}-{month_num}-{day.zfill(2)} {row['hour']}"
+                return None
+
+            df['temp_timestamp'] = df.apply(parse_french_date, axis=1)
+
+            df['datetime'] = pd.to_datetime(df['temp_timestamp'], format='%Y-%m-%d %H:%M', errors='coerce')
+
+            df = df.drop(columns=['temp_timestamp'])
+
+            df['min_waves_height']= df['wave_height'].str.extract(r'^(\d+(?:\.\d+)?)')
+            df['max_waves_height']=df['wave_height'].str.extract(r'-(\d+(?:\.\d+)?)')
+
+            df['min_waves_height'] = pd.to_numeric(df['min_waves_height'], errors='coerce')
+            df['max_waves_height'] = pd.to_numeric(df['max_waves_height'], errors='coerce')
+
+            df['moy_waves_height']=(df['min_waves_height']+df['max_waves_height'])/2
+
             folder_path = os.path.dirname(output_file)
 
-            # Create folder if it doesn't exist (only if a folder path is provided)
-            if folder_path and not os.path.exists(folder_path):
+
+            if folder_path and not os.path.exists(folder_path): #  Create folder if it doesn't exist (only if a folder path is provided)
                 os.makedirs(folder_path)
 
             df.to_csv(output_file, index=False, encoding='utf-8-sig')
