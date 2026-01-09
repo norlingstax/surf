@@ -1,0 +1,79 @@
+---
+title: "Wave&Wind "
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(shiny)
+library(flexdashboard)
+
+library(tidyverse)
+library(lubridate)
+library(here)
+
+library(DT)
+library(ggplot2)
+library(plotly)
+library(scales)
+
+DATA_PATH <- here("data", "toy_wave_forecast_7days.csv")
+
+surf_data <- read_csv(DATA_PATH, show_col_types = FALSE)
+```
+
+Row {data-width=350}
+-----------------------------------------------------------------------
+
+### Best moment to surf
+
+```{r}
+valueBox(
+value = "—",
+caption = "Best moment (coming week)"
+)
+```
+### Highest wave of the week
+```{r}
+valueBox(
+value = "—",
+caption = "Highest wave (coming week)"
+)
+```
+
+Row {data-width=350}
+-----------------------------------------------------------------------
+
+### Sea quality grade
+
+```{r}
+gauge(
+value = 0, min = 0, max = 100,
+symbol = "%", label = "Sea quality grade"
+)
+```
+
+### Forecast table
+
+```{r}
+DT :: datatable(surf_data)
+```
+
+Row {data-width=350}
+-----------------------------------------------------------------------
+
+### Wave size graph
+
+```{r}
+plot(1, type = "n", axes = FALSE, xlab = "", ylab = "")
+text(1, 1, "Wave size (mean) over time", cex = 1.2)
+```
+
+### Wind speed graph
+```{r}
+plot(1, type = "n", axes = FALSE, xlab = "", ylab = "")
+text(1, 1, "Wind speed over time", cex = 1.2)
+```
