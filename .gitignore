@@ -205,3 +205,38 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# R/Rstudio 
+
+.Rhistory
+.Rapp.history
+.RData
+.Ruserdata
+
+# Rstudio project 
+
+.Rproj.user/
+*.Rproj
+
+# R Markdown 
+*_cache/
+*_files/
+*.utf8.md
+*.knit.md
+
+# Flexdashboard / Shiny
+
+rsconnect/
+shinyapps/
+www/
+
+# Logs & temp files
+
+*.log
+*.tmp
+*.swp
+
+# OS junk
+
+.DS_Store
+Thumbs.db
