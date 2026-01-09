@@ -64,7 +64,7 @@ plot_data <- surf_data %>%
    mutate(datetime = as.POSIXct(datetime, format = "%m/%d/%Y %H:%M"))
 ```
 
-Row {data-width=350}
+Row {data-height=350}
 -----------------------------------------------------------------------
 
 ### Best moment to surf
@@ -84,8 +84,9 @@ caption = "Highest wave next week"
 )
 ```
 
-Row {data-width=350}
+Row {data-height=500}
 -----------------------------------------------------------------------
+
 
 ### Practice Condition
 
@@ -138,6 +139,8 @@ renderGauge({
 ```
 
 
+### Infos
+
 ```{r}
 
 observeEvent(input$prev_btn, {
@@ -163,7 +166,7 @@ renderUI({
 })
 ```
 
-Row {data-width=350}
+Row {data-height=650}
 -----------------------------------------------------------------------
 
 ### Wave size (m)
