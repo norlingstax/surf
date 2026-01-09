@@ -1,10 +1,12 @@
 ---
-title: "Wave&Wind "
+title: "Wave&Wind"
+runtime: shiny
 output: 
   flexdashboard::flex_dashboard:
     orientation: rows
     vertical_layout: fill
-runtime: shiny
+    theme : flatly
+    css: style.css
 ---
 
 ```{r setup, include=FALSE}
@@ -20,9 +22,46 @@ library(ggplot2)
 library(plotly)
 library(scales)
 
-DATA_PATH <- here("data", "toy_wave_forecast_7days.csv")
+DATA_PATH <- here("data", "surf_forecast.csv")
 
 surf_data <- read_csv(DATA_PATH, show_col_types = FALSE)
+
+
+#Cards Computation 
+
+best_moment <- surf_data %>% 
+  filter(moy_waves_height > 1.0,
+         wind_speed > 50,
+         str_detect(wind_direction, "Nord")) %>%
+  slice(1)
+
+best_time <- if (nrow(best_moment) > 0) {
+  paste(best_moment$date_raw)
+} else {
+  "No data available"
+}
+
+highest_wave <- surf_data %>%
+  summarise(max_wave = max(max_waves_height, na.rm = TRUE)) %>%
+  pull(max_wave)
+
+highest_wave_display <- paste0(highest_wave, "m")
+
+#Table and gauge  computation 
+
+table_data <- surf_data %>% 
+  select(date_raw, moy_waves_height, wind_direction) %>% 
+  rename(
+    Time = date_raw,
+    `Wave Size` = moy_waves_height,
+    `Wind Direction` = wind_direction
+  )
+
+rv <- reactiveValues(row = 1)
+
+#Plot data
+plot_data <- surf_data %>%
+   mutate(datetime = as.POSIXct(datetime, format = "%m/%d/%Y %H:%M"))
 ```
 
 Row {data-width=350}
@@ -32,48 +71,160 @@ Row {data-width=350}
 
 ```{r}
 valueBox(
-value = "—",
-caption = "Best moment (coming week)"
+value = best_time,
+caption = "Best moment to surf",
+icon = "fa-water"
 )
 ```
 ### Highest wave of the week
 ```{r}
 valueBox(
-value = "—",
-caption = "Highest wave (coming week)"
+value = highest_wave_display,
+caption = "Highest wave next week"
 )
 ```
 
 Row {data-width=350}
 -----------------------------------------------------------------------
 
-### Sea quality grade
+### Practice Condition
 
 ```{r}
-gauge(
-value = 0, min = 0, max = 100,
-symbol = "%", label = "Sea quality grade"
-)
+renderGauge({
+  
+  current_wave <- surf_data$moy_waves_height[rv$row]
+  current_wind_speed <- surf_data$wind_speed[rv$row]
+  current_wind_dir <- surf_data$wind_direction[rv$row]
+  
+  
+  criteria_met <- 0
+  
+  
+  if (current_wave >= 1.0) criteria_met <- criteria_met + 1
+  
+  
+  if (current_wind_speed <= 50) criteria_met <- criteria_met + 1
+  
+  
+  if (grepl("Nord", current_wind_dir)) criteria_met <- criteria_met + 1
+  
+  
+  value <- 0
+  label <- ""
+  
+  if (criteria_met == 3) {
+    value <- 100
+    label <- "Very Good Conditions"
+    sectors <- gaugeSectors(success = c(0, 100))
+  } else if (criteria_met == 2) {
+    value <- 66
+    label <- "Moderate Conditions"
+    sectors <- gaugeSectors(warning = c(0, 100))
+  } else {
+    value <- 33
+    label <- "Poor Conditions"
+    sectors <- gaugeSectors(danger = c(0, 100))
+  }
+  
+  gauge(
+    value = value,
+    min = 0,
+    max = 100,
+    symbol = "%",
+    label = label,
+    sectors = sectors
+  )
+})
 ```
 
-### Forecast table
 
 ```{r}
-DT :: datatable(surf_data)
+
+observeEvent(input$prev_btn, {
+  if (rv$row > 1) rv$row <- rv$row - 1
+})
+
+  
+observeEvent(input$next_btn, {
+  if (rv$row < nrow(table_data)) rv$row <- rv$row + 1
+})
+
+
+renderUI({
+  tagList(
+    div(style = "text-align: center; margin-bottom: 15px;",
+      actionButton("prev_btn", "← Previous", style = "margin-right: 10px;"),
+      actionButton("next_btn", "Next →")
+    ),
+    renderTable({
+      table_data[rv$row, ]
+    }, width = "100%", bordered = TRUE)
+  )
+})
 ```
 
 Row {data-width=350}
 -----------------------------------------------------------------------
 
-### Wave size graph
+### Wave size (m)
 
 ```{r}
-plot(1, type = "n", axes = FALSE, xlab = "", ylab = "")
-text(1, 1, "Wave size (mean) over time", cex = 1.2)
+renderPlotly({
+ 
+  p <- ggplot(plot_data, aes(x = datetime, y = moy_waves_height)) +
+    geom_area(fill = "#1E90FF", alpha = 0.4) +  
+    geom_line(color = "#003D5C", size = 0.8) +   
+    labs(
+      x = NULL,
+      y = NULL
+    ) +
+    theme_minimal() +
+    theme(
+      panel.background = element_rect(fill = "#87CEEB", color = NA), 
+      plot.background = element_rect(fill = "#87CEEB", color = NA),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(color = "#1f4e79", size = 0.6),
+      axis.text = element_text(color = "#1f4e79"),
+      axis.title = element_text(color = "#1f4e79", face = "bold")
+    )
+  
+  
+  ggplotly(p, tooltip = c("x", "y")) %>%
+    layout(
+      plot_bgcolor = "#87CEEB",
+      paper_bgcolor = "#87CEEB"
+    )
+})
 ```
 
-### Wind speed graph
+### Wind speed (km/h)
 ```{r}
-plot(1, type = "n", axes = FALSE, xlab = "", ylab = "")
-text(1, 1, "Wind speed over time", cex = 1.2)
+renderPlotly({
+  
+  p <- ggplot(plot_data, aes(x = datetime, y = wind_speed)) +
+    geom_area(fill = "#FFFFFF", alpha = 0.6) +  
+    geom_line(color = "#4A4A4A", size = 0.8) +   
+    labs(
+      x = NULL,
+      y = NULL
+    ) +
+    theme_minimal() +
+    theme(
+      panel.background = element_rect(fill = "#87CEEB", color = NA),
+      plot.background = element_rect(fill = "#87CEEB", color = NA),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(color = "#1f4e79", size = 0.5),
+      axis.text = element_text(color = "#1f4e79"),
+      axis.title = element_text(color = "#1f4e79", face = "bold")
+    )
+  
+  
+  ggplotly(p, tooltip = c("x", "y")) %>%
+    layout(
+      plot_bgcolor = "#87CEEB",
+      paper_bgcolor = "#87CEEB"
+    )
+})
 ```

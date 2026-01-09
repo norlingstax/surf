@@ -1,0 +1,94 @@
+/* background */
+body {
+  background-color: #87CEEB ; /* light sky blue */
+}
+
+
+/* header */
+.navbar {
+  background-color: #ffd84d !important; /* sun yellow */
+}
+
+.navbar-brand {
+  color: #1f4e79 !important;
+  font-weight: bold;
+}
+
+/* pages titles */
+h1, h2, h3 {
+  color: #1f4e79;
+}
+
+/* cards= */
+
+.section.level2 {
+  background: transparent !important;
+  padding: 12px 0;
+}
+
+/* boxes */
+.value-box {
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #1f4e79;
+  border-radius: 12px;
+  font-weight: bold;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+/*tables*/
+
+.dataTables_wrapper {
+  background-color: #ffd84d;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+/*gauge*/
+.gauge-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f4e79;
+}
+
+.gauge-value {
+  color: #1f4e79;
+  font-weight: bold;
+}
+
+.gauge text {
+  fill: #1f4e79 !important;
+  font-weight: 700;
+}
+
+.chart-wrapper {
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+/*buttons*/
+/* Navigation buttons */
+.btn.action-button {
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #1f4e79;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 8px 16px;
+  transition: all 0.3s ease;
+}
+.btn.action-button:focus,
+.btn.action-button:active,
+.btn.action-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(31, 78, 121, 0.35);
+}
