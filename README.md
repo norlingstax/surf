@@ -4,7 +4,7 @@
 
 ##  Overview
 
-As a data analyst for a Surf School located near Bordeaux, this project aims to automate the collection and visualization of sea conditions. The goal is to identify the **best moment to practice surfing** during the upcoming week based on specific meteorological criteria.
+This project aims to automate the collection and visualization of sea conditions. The goal is to identify the **best moment to practice surfing** during the upcoming week based on specific meteorological criteria.
 
 The project is divided into two main components:
 1.  **Python ETL Pipeline:** A custom library (`surf_scrap`) to scrape weather forecasts (waves, wind, direction) from *surf-report.com* and export them to a CSV dataset.

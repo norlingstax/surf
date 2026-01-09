@@ -91,7 +91,7 @@ def get_forecast(url, output_file):
                 if len(parts) >= 3:
                     day = parts[1]
                     month_str = parts[2]
-                    month_num = month_map.get(month_str, '01')  # Default to 01 if not found
+                    month_num = month_map.get(month_str, '01')
 
                     # Construct string: "2025-01-09 06:00"
                     # Note: We zfill(2) the day to turn "9" into "09"
@@ -114,8 +114,8 @@ def get_forecast(url, output_file):
 
             folder_path = os.path.dirname(output_file)
 
-            # Create folder if it doesn't exist (only if a folder path is provided)
-            if folder_path and not os.path.exists(folder_path):
+
+            if folder_path and not os.path.exists(folder_path): #  Create folder if it doesn't exist (only if a folder path is provided)
                 os.makedirs(folder_path)
 
             df.to_csv(output_file, index=False, encoding='utf-8-sig')
