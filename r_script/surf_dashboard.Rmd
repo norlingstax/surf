@@ -17,10 +17,8 @@ library(tidyverse)
 library(lubridate)
 library(here)
 
-library(DT)
 library(ggplot2)
 library(plotly)
-library(scales)
 
 DATA_PATH <- here("data", "surf_forecast.csv")
 

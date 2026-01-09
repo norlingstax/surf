@@ -15,7 +15,7 @@ The project is divided into two main components:
 The workflow consists of the following steps:
 1.  **Scraping (Python):** The `surf_scrap` library extracts 7-day forecast data.
 2.  **Storage:** Data is cleaned (date parsing, numeric conversion) and saved as a CSV file.
-3.  **Visualization (R):** An R Markdown script processes the CSV to generate a dashboard with KPIs.
+3.  **Visualization (R):** An R  script run the main Python script and generate a dashboard.
 
 ## Prerequisites
 
@@ -24,8 +24,7 @@ The workflow consists of the following steps:
 
 
 ### R Environment
-* R & RStudio
-* Packages: `flexdashboard`, `tidyverse` (dplyr, ggplot2), `readr`, `gauge`
+* R & RStudio 
 
 ## Installation & Setup
 
@@ -44,48 +43,26 @@ pip install requirements.txt
 ```
 
 ### 3. R Setup
-Open RStudio and install the required packages:
-```
-install.packages(c("flexdashboard", "tidyverse", "readr"))
-```
+You'll need the following packages:
+- shiny
+- flexdashboard
+- tidyverse
+- lubridate
+- here
+- plotly
+
 ## Usage
 
-### Step 1: Extract Data (Python)
-Use the main.py script to scrape the latest data for your specific surf spot.
+Run `run_surf_dashboard.R`, it will launch the scrapping pipeline and open a nice user interface built with flexdashboard
 
-Example usage in main.py:
-
-```bash
-import surf_scrap
-
-# URL for Moliets (or Carcans, Lacanau, etc.)
-target_url = "[https://www.surf-report.com/meteo-surf/moliets-plage-centrale-s102799.html](https://www.surf-report.com/meteo-surf/moliets-plage-centrale-s102799.html)"
-output_path = "data/surf_forecast.csv"
-
-# Run the scraper
-surf_scrap.get_forecast(target_url, output_path)
-```
-
-Run the script from your terminal:
-
-```Bash
-python main.py
-```
-Output: A file named surf_forecast.csv will be created in the data/ folder.
-
-### Step 2: Generate Dashboard (R)
-1. Open dashboard.Rmd in RStudio.
-2. Ensure the path to data/surf_forecast.csv is correct in the R chunk.
-3. Click the "Knit" button to generate the HTML dashboard.
-
-####  Dashboard Features
+## Dashboard Features
 The R dashboard provides the following insights:
 
 - Wave Trend: A line graph showing mean wave height over the next 7 days.
 - Wind Analysis: A visualization of wind speed fluctuations.
 - Detailed Forecast: A table listing Day, Hour, Wave Size, and Wind Direction.
 - The "Best Moment": An algorithmic recommendation box highlighting the best day/hour to surf.
-- Quality Gauge: A visual grade (0-100) of the sea quality for that best moment.
+- Quality Gauge: A visual grade (0-100) of the sea quality for that best moment.V
 
 #### "Best Moment" Logic
 The recommendation engine prioritizes:
@@ -103,8 +80,14 @@ surf-dashboard/
 │
 ├── surf_scrap/                # Python Library
 │   ├── __init__.py            # Main scraping logic
+│   └── scrap.py
 │
-├── main.py                    # Script to execute the scraping
-├── dashboard.Rmd              # R Flexdashboard source code
+├── main.py
+│                  
+├── r_script/
+│    ├── run_surf_dashboard.R  # script to run
+│    ├── surf_dashboard.Rmd    # flexdashboard code
+│    └── style.css             # customized colors & shape
+│            
 ├── README.md                  # Project documentation
 └── requirements.txt           # Python dependencies

@@ -246,3 +246,6 @@ www/
 
 .DS_Store
 Thumbs.db
+
+# html ouput
+surf_dashboard.html
