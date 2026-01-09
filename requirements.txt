@@ -1,0 +1,5 @@
+pandas
+logging
+os
+requests
+beautifulsoup4
